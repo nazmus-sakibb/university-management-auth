@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
-import config from './config/index'
 import app from './app'
+import config from './config/index'
 import logger from './shared/logger'
 
 async function main() {
