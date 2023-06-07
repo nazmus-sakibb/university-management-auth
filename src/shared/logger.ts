@@ -1,28 +1,59 @@
 import path from 'path'
-import winston from 'winston'
+import { createLogger, format, transports } from 'winston'
+import DailyRotateFile from 'winston-daily-rotate-file'
+const { combine, timestamp, label, printf, prettyPrint } = format
 
-const logger = winston.createLogger({
+// Custom log format
+const myFormat = printf(({ level, message, label, timestamp }) => {
+  const date = new Date(timestamp)
+  const hour = date.getHours()
+  const minutes = date.getMinutes()
+  const seconds = date.getSeconds()
+  return `${date.toDateString()} ${hour}:${minutes}:${seconds} [${label}] ${level}: ${message}`
+})
+
+const logger = createLogger({
   level: 'info',
-  format: winston.format.json(),
+  format: combine(label({ label: 'PH' }), timestamp(), myFormat, prettyPrint()),
   transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({
-      filename: path.join(process.cwd(), 'logs', 'winston', 'success.log'),
-      level: 'info',
+    new transports.Console(),
+    new DailyRotateFile({
+      filename: path.join(
+        process.cwd(),
+        'logs',
+        'winston',
+        'successes',
+        'phu-%DATE%-success.log'
+      ),
+      datePattern: 'YYYY-DD-MM-HH',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '14d',
     }),
   ],
 })
 
-const errorLogger = winston.createLogger({
+const errorLogger = createLogger({
   level: 'error',
-  format: winston.format.json(),
+  format: combine(label({ label: 'PH' }), timestamp(), myFormat, prettyPrint()),
   transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({
-      filename: path.join(process.cwd(), 'logs', 'winston', 'error.log'),
-      level: 'error',
+    new transports.Console(),
+    new DailyRotateFile({
+      filename: path.join(
+        process.cwd(),
+        'logs',
+        'winston',
+        'successes',
+        'phu-%DATE%-error.log'
+      ),
+      datePattern: 'YYYY-DD-MM-HH',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '14d',
     }),
   ],
 })
 
 export { logger, errorLogger }
+
+// filename: path.join(process.cwd(), 'logs', 'winston', 'errors', 'phu-%DATE%-error.log'),
