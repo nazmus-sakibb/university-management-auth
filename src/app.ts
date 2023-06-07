@@ -10,6 +10,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // application routes
+// eslint-disable-next-line no-console
+console.log(app.get('env'))
+
 app.use('/api/v1/users/', usersRouter)
 
 // testing
